@@ -1,10 +1,9 @@
 {
   "compilerOptions": {
-    "target": "es2021",
-    "lib": ["dom", "es2021"],
-    "module": "CommonJS",
+    "target": "es2022",
+    "lib": ["dom", "es2022"],
+    "module": "es2022",
     "moduleResolution": "node",
-    "sourceMap": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "strict": true,
@@ -12,6 +11,7 @@
     "esModuleInterop": true,
     "outDir": "./built",
     "allowJs": true,
+    "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
     "composite": true,

@@ -39,6 +39,9 @@
 > sudo apt-get install nodejs=16.18.1
 > npm init -y
 > npm i axios@1.2.0-alpha.1
+> yarn add @uniswap/sdk
+> yarn add ethers@5.4.1
+> yarn add big.js @types/big.js
 
 > Compare installed versions:
 > node -v
@@ -51,7 +54,7 @@
 To see some liquidity data from Uniswap open terminal in folder with READ.md and run following commands:
 
 `tsc`
-`node ./built/uniswap-contract-fetcher.js`
+`node ./built/src/uniswap-contract-fetcher.js`
 
 ## Project Status
 
