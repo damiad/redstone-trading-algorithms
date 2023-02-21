@@ -1,6 +1,6 @@
 # Scripts for trading algorithms
 
-> Scripts to check how to manipulate price on the Uniswap v2 pool.
+> Fetching data form Uniswap v2 and finding the most efficient ways to manipulate the price.
 
 ## Table of Contents
 
@@ -51,7 +51,10 @@
 
 ## Usage
 
-Change directory to packages and run script that interests you the most.
+To see some liquidity data from Uniswap open terminal in folder with READ.md and run following commands:
+
+`tsc`
+`node ./built/src/uniswap-contract-fetcher.js`
 
 ## Project Status
 
@@ -64,6 +67,9 @@ Project is: _in Progress_
 ## Acknowledgements
 
 - This project was inspired by [RedStone Finance](https://github.com/redstone-finance)
+- This project was based on:
+- [Uniswap v2](https://uniswap.org/docs/v2/)
+- [Fork mainnet](https://mixbytes.io/blog/how-fork-mainnet-testing)
 
 ## Contact
 
