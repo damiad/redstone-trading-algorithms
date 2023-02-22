@@ -21,15 +21,41 @@ const pair: Pair = await Fetcher.fetchPairData(tokenA, tokenB); // fetch pool fo
 
 const tokenAreserve = pair.reserve0.toSignificant(precision); // tokenA reserve
 const tokenBreserve = pair.reserve1.toSignificant(precision); // tokenB reserve
+const tokenAprice = pair.priceOf(tokenA).toSignificant(precision); // price of tokenA in tokenB
 
 console.log(`tokenA reserve: ${tokenAreserve}`);
 console.log(`tokenB reserve: ${tokenBreserve}`);
+console.log(`Price of tokenA in tokenB: ${tokenAprice}`);
 
-function getLiquidity(num1: string, num2: string) {
+function getLiquidity(num1: string, num2: string): Big {
   const bigNum1 = new Big(num1);
   const bigNum2 = new Big(num2);
-  const result = bigNum1.times(bigNum2).sqrt();
-  console.log(`Liquidity: ${result.toPrecision(precision)}`);
+  return bigNum1.times(bigNum2).sqrt();
 }
+console.log(
+  `Liquidity: ${getLiquidity(tokenAreserve, tokenBreserve).toPrecision(
+    precision
+  )}`
+);
 
-getLiquidity(tokenAreserve, tokenBreserve);
+const percentage = 10; // you can change to any number (e.g. 10 for 10%)
+const transactionFee = 0.003; // 0.3% transaction fee
+function amountBRequiredToIncreasePrice(
+  percentage: number,
+  transactionFee: number
+): void {
+  const bigPercentage = new Big(1 + percentage / 100).sqrt().minus(1);
+  const bigTransactionFee = new Big(1 / (1 - transactionFee));
+  const liquidity = getLiquidity(tokenAreserve, tokenBreserve);
+  const sqrtPrice = new Big(tokenAprice).sqrt();
+  const result = bigPercentage
+    .times(sqrtPrice)
+    .times(liquidity)
+    .times(bigTransactionFee);
+  console.log(
+    `Amount of tokenB required to increasee price by ${percentage}%: ${result.toPrecision(
+      precision
+    )}`
+  );
+}
+if (percentage) amountBRequiredToIncreasePrice(percentage, transactionFee);
