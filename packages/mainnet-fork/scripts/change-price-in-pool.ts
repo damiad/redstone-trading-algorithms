@@ -10,11 +10,13 @@ import {
   Percent,
 } from "@uniswap/sdk";
 import config from "../hardhat.config";
+import IUniswapV2Router02 from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
+// import { Contract } from "ethers";
 
 const tokenAadress = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"; // WETH on Ethereum mainnet
 const tokenBadress = "0x6B175474E89094C44Da98b954EedeAC495271d0F"; // DAI on Ethereum mainnet
 const uniswapV2RouterAddress = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"; // Uniswap v2 router address
-const amountIn = "4429375206869451436485177876632446640558"; //18 decimals
+const amountIn = "4429375206869451436"; //18 decimals
 
 async function main() {
   const provider = ethers.provider;
@@ -38,11 +40,16 @@ async function main() {
   const [owner] = await ethers.provider.listAccounts();
   const to = owner; // use the first wallet from the list
 
-  const [signer] = await ethers.getSigners();
   const uniswapV2Router = await ethers.getContractAt(
-    "IUniswapV2Router02",
+    IUniswapV2Router02.abi,
     uniswapV2RouterAddress
   );
+  // const signer = (await ethers.getSigners())[0];
+  // const uniswapRouter = new Contract(
+  //   uniswapV2RouterAddress,
+  //   IUniswapV2Router02.abi,
+  //   signer
+  // ) as typeof IUniswapV2Router02;
 
   const slippageTolerance = new Percent("1", "10000"); // 0.01% slippage tolerance
   const amountOutMin = trade.minimumAmountOut(slippageTolerance).raw;
@@ -55,7 +62,13 @@ async function main() {
     deadline,
     { gasLimit: 1000000 }
   );
-  console.log(`Transaction hash: ${tx.hash}`);
+  // console.log(`Transaction hash: ${tx.hash}`);
+  try {
+    await tx.wait();
+    console.log("Transaction confirmed.");
+  } catch (error) {
+    console.log(`Transaction failed with error: ${error.message}`);
+  }
 }
 
 main().catch((error) => {

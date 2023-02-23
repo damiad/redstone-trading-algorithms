@@ -42,6 +42,7 @@
 > yarn add @uniswap/sdk
 > yarn add ethers@5.4.1
 > yarn add big.js @types/big.js
+> yarn add @uniswap/v2-periphery
 
 > Compare installed versions:
 > node -v
