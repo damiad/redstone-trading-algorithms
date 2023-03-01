@@ -13,13 +13,17 @@ import config from "../hardhat.config";
 import IUniswapV2Router02 from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
 import { Big } from "big.js";
 import { Contract } from "ethers";
-import { exit } from "process";
+import { getTokenInfo } from "./constants";
+import { uniswapV2Router02Address } from "./constants";
 
-const tokenAadress = "0x6B175474E89094C44Da98b954EedeAC495271d0F"; // DAI on Ethereum mainnet
-const tokenBadress = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"; // WETH on Ethereum mainnet
-const uniswapV2RouterAddress = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"; // Uniswap v2 router address
+const tokenAsymbol = "DAI"; // we can change this to any token symbol
+const tokenBsymbol = "WETH"; // we can change this to any token symbol
+const slippageTolerance = new Percent("1000", "10000"); // 10% slippage tolerance
 const amountIn = "1000000000000000000"; //18 decimals
 const gasLimit = 1000000;
+
+const tokenAInfo = getTokenInfo(tokenAsymbol);
+const tokenBInfo = getTokenInfo(tokenBsymbol);
 
 async function enoughResources(tokenContract: Contract, owner: string) {
   //checks ETH balance for gas
@@ -67,7 +71,7 @@ async function approveTransaction(tokenToSpent: Token, owner: string) {
   await enoughResources(tokenContract, owner);
 
   const approvalTx = await tokenContract.approve(
-    uniswapV2RouterAddress,
+    uniswapV2Router02Address,
     amountIn,
     { gasLimit: gasLimit }
   );
@@ -78,8 +82,16 @@ async function main() {
   const provider = ethers.provider;
   const networkID = config.networks.hardhat.chainId; // 31337 for hardhat testing
 
-  const tokenA: Token = new Token(networkID, tokenAadress, 18); // 18 is the number of decimals
-  const tokenB: Token = new Token(networkID, tokenBadress, 18); // 18 is the number of decimals
+  const tokenA: Token = new Token(
+    networkID,
+    tokenAInfo.address,
+    tokenAInfo.decimals
+  );
+  const tokenB: Token = new Token(
+    networkID,
+    tokenBInfo.address,
+    tokenBInfo.decimals
+  );
   const pair: Pair = await Fetcher.fetchPairData(tokenA, tokenB, provider); // fetch pool for the pair using the Hardhat provider
 
   const route = new Route([pair], tokenB);
@@ -98,13 +110,27 @@ async function main() {
 
   const uniswapV2Router = await ethers.getContractAt(
     IUniswapV2Router02.abi,
-    uniswapV2RouterAddress
+    uniswapV2Router02Address
   );
 
-  const slippageTolerance = new Percent("1000", "10000"); // 10% slippage tolerance
   const amountOutMin = trade.minimumAmountOut(slippageTolerance).raw;
 
   await approveTransaction(tokenB, owner);
+
+  //   try { // maybe try swapping ETH instead of tokens
+  //     const tx = await uniswapV2Router.swapExactETHForTokens(
+  //       trade.inputAmount.raw.toString(),
+  //       amountOutMin.toString(),
+  //       path,
+  //       to,
+  //       deadline,
+  //       { gasLimit: gasLimit, value: amountIn }
+  //     );
+  //     console.log(`Transaction hash: ${tx.hash}`);
+  //   } catch (error) {
+  //     console.log(`Transaction failed with error: ${error.message}`);
+  //   }
+  // }
 
   try {
     const tx = await uniswapV2Router.swapExactTokensForTokens(

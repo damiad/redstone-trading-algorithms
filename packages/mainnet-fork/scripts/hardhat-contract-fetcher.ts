@@ -2,13 +2,16 @@ import { Token, Fetcher, Pair } from "@uniswap/sdk";
 import { Big } from "big.js";
 import { ethers } from "hardhat";
 import config from "../hardhat.config";
+import { getTokenInfo } from "./constants";
 
-const precision = 40; //Total number of significant digits to return
-const tokenAadress = "0x6B175474E89094C44Da98b954EedeAC495271d0F"; // DAI on Ethereum mainnet
-const tokenBadress = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"; // WETH on Ethereum mainnet
-
+const precision = 40; // Total number of significant digits to return
+const tokenAsymbol = "DAI"; // we can change this to any token symbol
+const tokenBsymbol = "WETH"; // we can change this to any token symbol
 const percentage = 10; // you can change to any number (e.g. 10 for 10%), 0 if you want to skip this function
 const transactionFee = 0.003; // 0.3% transaction fee
+
+const tokenAInfo = getTokenInfo(tokenAsymbol);
+const tokenBInfo = getTokenInfo(tokenBsymbol);
 
 function getLiquidity(num1: string, num2: string): Big {
   const bigNum1 = new Big(num1);
@@ -42,8 +45,16 @@ const main = async () => {
   const provider = ethers.provider;
   const networkID = config.networks.hardhat.chainId; // 31337 for hardhat testing
 
-  const tokenA: Token = new Token(networkID, tokenAadress, 18); // 18 is the number of decimals
-  const tokenB: Token = new Token(networkID, tokenBadress, 18); // 18 is the number of decimals
+  const tokenA: Token = new Token(
+    networkID,
+    tokenAInfo.address,
+    tokenAInfo.decimals
+  );
+  const tokenB: Token = new Token(
+    networkID,
+    tokenBInfo.address,
+    tokenBInfo.decimals
+  );
   const pair: Pair = await Fetcher.fetchPairData(tokenA, tokenB, provider); // fetch pool for the pair using the Hardhat provider
   const tokenAreserve = pair.reserve0.toSignificant(precision); // tokenA reserve
   const tokenBreserve = pair.reserve1.toSignificant(precision); // tokenB reserve
